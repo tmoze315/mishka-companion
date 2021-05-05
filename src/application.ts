@@ -6,6 +6,7 @@ import { Client, Collection, GuildMember } from 'discord.js';
 import { Reward } from './models/Reward';
 import isEmpty from 'lodash/isEmpty';
 import sample from 'lodash/sample';
+import concat from 'lodash/concat';
 import { makeLootDroppedMessage } from './messages/loot-dropped';
 import availableCommands from './config/available-commands';
 import { makeItemRewardedMessage } from './messages/item-rewarded';
@@ -54,7 +55,7 @@ class Application {
             return;
         }
 
-        // Fine the matching "route" (aka which commands file and method to call)
+        // Fine the matching 'route' (aka which commands file and method to call)
         const route = (availableCommands as any)[command];
 
         // We don't support the given command
@@ -125,13 +126,13 @@ class Application {
 
         const itemName = itemMatches[2];
 
-        const updated = await Reward.findOneAndUpdate({ userId: user?.id, itemName: itemName, rewarded: false }, { rewarded: true });
+        const updated = await Reward.findOneAndUpdate({ userId: user?.id, itemName: itemName, rewarded: false, guildId: this.message.guildId() }, { rewarded: true });
 
         if (!updated) {
             return;
         }
 
-        const rewards = await Reward.find({ rewarded: false });
+        const rewards = await Reward.find({ rewarded: false, guildId: this.message.guildId() });
 
         return this.message.send(makeItemRewardedMessage(rewards));
     }
@@ -193,23 +194,385 @@ class Application {
         this.message.send(makeLootDroppedMessage(droppedItem, users));
     }
 
+    originalSetItems(): Array<IItem> {
+        return [
+            <IItem>{ name: 'Belt Of Ainz Ooal Gown', stats: '', slot: 'belt', type: 'set' },
+            <IItem>{ name: 'Boots Of Ainz Ooal Gown', stats: '', slot: 'boots', type: 'set' },
+            <IItem>{ name: 'Crown Of Ainz Ooal Gown', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'Gauntlets Of Ainz Ooal Gown', stats: '', slot: 'gloves', type: 'set' },
+            <IItem>{ name: 'Heart Of Ainz Ooal Gown', stats: '', slot: 'chest', type: 'set' },
+            <IItem>{ name: 'Key To Ainz Ooal Gown', stats: '', slot: 'charm', type: 'set' },
+            <IItem>{ name: 'Pants Of Ainz Ooal Gown', stats: '', slot: 'legs', type: 'set' },
+            <IItem>{ name: 'Necklace Of Ainz Ooal Gown', stats: '', slot: 'neck', type: 'set' },
+            <IItem>{ name: 'Ring Of Ainz Ooal Gown', stats: '', slot: 'ring', type: 'set' },
+            <IItem>{ name: 'Staff Of Ainz Ooal Gown', stats: '', slot: 'twohanded', type: 'set' },
+            <IItem>{ name: 'Skrrtis Radiance', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'Skrrtis Sandals', stats: '', slot: 'boots', type: 'set' },
+            <IItem>{ name: 'Golden Dragonplate Boots', stats: '', slot: 'boots', type: 'set' },
+            <IItem>{ name: 'Golden Dragonplate Chain', stats: '', slot: 'belt', type: 'set' },
+            <IItem>{ name: 'Golden Dragonplate Hat', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'Golden Dragonplate Pants', stats: '', slot: 'legs', type: 'set' },
+            <IItem>{ name: 'Golden Dragonplate Thread', stats: '', slot: 'neck', type: 'set' },
+            <IItem>{ name: 'Panified Saronite Armor', stats: '', slot: 'belt', type: 'set' },
+            <IItem>{ name: 'Panified Saronite Battle Axe', stats: '', slot: 'twohanded', type: 'set' },
+            <IItem>{ name: 'Panified Saronite Gloves', stats: '', slot: 'gloves', type: 'set' },
+            <IItem>{ name: 'Panified Saronite Helmet', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'Panified Saronite Ringlet', stats: '', slot: 'ring', type: 'set' },
+            <IItem>{ name: 'Panified Saronite Shard', stats: '', slot: 'charm', type: 'set' },
+            <IItem>{ name: 'Panified Saronite Skins', stats: '', slot: 'legs', type: 'set' },
+            <IItem>{ name: 'Panified Saronite Thread', stats: '', slot: 'neck', type: 'set' },
+            <IItem>{ name: 'Elven Mithril Amulet', stats: '', slot: 'ring', type: 'set' },
+            <IItem>{ name: 'Elven Mithril Chain', stats: '', slot: 'belt', type: 'set' },
+            <IItem>{ name: 'Elven Mithril Chainmail', stats: '', slot: 'chest', type: 'set' },
+            <IItem>{ name: 'Elven Mithril Dagger', stats: '', slot: 'left', type: 'set' },
+            <IItem>{ name: 'Elven Mithril Gauntlets', stats: '', slot: 'gloves', type: 'set' },
+            <IItem>{ name: 'Elven Mithril Hat', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'Elven Mithril Leggings', stats: '', slot: 'legs', type: 'set' },
+            <IItem>{ name: 'Elven Mithril Shard', stats: '', slot: 'charm', type: 'set' },
+            <IItem>{ name: 'Elven Mithril Shoes', stats: '', slot: 'boots', type: 'set' },
+            <IItem>{ name: 'Elven Mithril Thread', stats: '', slot: 'neck', type: 'set' },
+            <IItem>{ name: 'Elven Mithril War Axe', stats: '', slot: 'right', type: 'set' },
+            <IItem>{ name: 'Heavenly Unobtanium Belt', stats: '', slot: 'belt', type: 'set' },
+            <IItem>{ name: 'Heavenly Unobtanium Ringlet', stats: '', slot: 'ring', type: 'set' },
+            <IItem>{ name: 'Heavenly Unobtanium Scarf', stats: '', slot: 'neck', type: 'set' },
+            <IItem>{ name: 'Heavenly Dragonbone Cap', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'Heavenly Dragonbone Figurine', stats: '', slot: 'charm', type: 'set' },
+            <IItem>{ name: 'Heavenly Dragonbone Leggings', stats: '', slot: 'legs', type: 'set' },
+            <IItem>{ name: 'Heavenly Dragonbone Ringlet', stats: '', slot: 'ring', type: 'set' },
+            <IItem>{ name: 'Heavenly Dragonbone Sandals', stats: '', slot: 'boots', type: 'set' },
+            <IItem>{ name: 'Heavenly Dragonbone Sword', stats: '', slot: 'right', type: 'set' },
+            <IItem>{ name: 'Heavenly Dragonbone Wand', stats: '', slot: 'left', type: 'set' },
+            <IItem>{ name: 'Polished Duranium Axe', stats: '', slot: 'right', type: 'set' },
+            <IItem>{ name: 'Polished Duranium Shard', stats: '', slot: 'charm', type: 'set' },
+            <IItem>{ name: 'Masterwork Ebony Chain', stats: '', slot: 'belt', type: 'set' },
+            <IItem>{ name: 'Masterwork Ebony Cuirass', stats: '', slot: 'chest', type: 'set' },
+            <IItem>{ name: 'Masterwork Ebony Gauntlets', stats: '', slot: 'gloves', type: 'set' },
+            <IItem>{ name: 'Masterwork Ebony Hat', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'Masterwork Ebony Necklace', stats: '', slot: 'neck', type: 'set' },
+            <IItem>{ name: 'Masterwork Ebony Ringlet', stats: '', slot: 'ring', type: 'set' },
+            <IItem>{ name: 'Masterwork Ebony Sandals', stats: '', slot: 'boots', type: 'set' },
+            <IItem>{ name: 'Masterwork Ebony Shard', stats: '', slot: 'charm', type: 'set' },
+            <IItem>{ name: 'Masterwork Ebony Skins', stats: '', slot: 'legs', type: 'set' },
+            <IItem>{ name: 'Masterwork Ebony Wand', stats: '', slot: 'left', type: 'set' },
+            <IItem>{ name: 'Masterwork Ebony War Axe', stats: '', slot: 'right', type: 'set' },
+            <IItem>{ name: 'Godly Etherium Armor', stats: '', slot: 'belt', type: 'set' },
+            <IItem>{ name: 'Godly Etherium Cap', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'Godly Etherium Gauntlets', stats: '', slot: 'gloves', type: 'set' },
+            <IItem>{ name: 'Godly Etherium Pants', stats: '', slot: 'legs', type: 'set' },
+            <IItem>{ name: 'Ancient Obsidium Armor', stats: '', slot: 'chest', type: 'set' },
+            <IItem>{ name: 'Ancient Obsidium Charm', stats: '', slot: 'neck', type: 'set' },
+            <IItem>{ name: 'Ancient Obsidium Figurine', stats: '', slot: 'charm', type: 'set' },
+            <IItem>{ name: 'Ancient Obsidium Greatsword', stats: '', slot: 'twohanded', type: 'set' },
+            <IItem>{ name: 'Ancient Obsidium Helmet', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'Ancient Obsidium Leggings', stats: '', slot: 'legs', type: 'set' },
+            <IItem>{ name: 'Ancient Obsidium Ring', stats: '', slot: 'ring', type: 'set' },
+            <IItem>{ name: 'Ancient Obsidium Shoes', stats: '', slot: 'boots', type: 'set' },
+            <IItem>{ name: 'Shiny Dragonplate Gauntlets', stats: '', slot: 'gloves', type: 'set' },
+            <IItem>{ name: 'Shiny Dragonplate Sling', stats: '', slot: 'left', type: 'set' },
+            <IItem>{ name: 'Dreadnaught Gauntlets', stats: '', slot: 'gloves', type: 'set' },
+            <IItem>{ name: 'War Axe Of The Dreadnaught', stats: '', slot: 'twohanded', type: 'set' },
+            <IItem>{ name: 'Dreadnaught Helmet', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'Dreadnaught Breastplate', stats: '', slot: 'chest', type: 'set' },
+            <IItem>{ name: 'Dreadnaught Sabatons', stats: '', slot: 'boots', type: 'set' },
+            <IItem>{ name: 'Dreadnaught Waistguard', stats: '', slot: 'legs', type: 'set' },
+            <IItem>{ name: 'Dreadnaught Legplates', stats: '', slot: 'belt', type: 'set' },
+            <IItem>{ name: 'Necklace Of The Dreadnaught', stats: '', slot: 'neck', type: 'set' },
+            <IItem>{ name: 'Ring Of The Dreadnaught', stats: '', slot: 'ring', type: 'set' },
+            <IItem>{ name: 'Golad, Twilight Of Aspects', stats: '', slot: 'left', type: 'set' },
+            <IItem>{ name: 'Tiriosh, Nightmare Of Ages', stats: '', slot: 'right', type: 'set' },
+            <IItem>{ name: 'Vita-Charged Titanshard', stats: '', slot: 'charm', type: 'set' },
+            <IItem>{ name: 'Void-Twisted Titanshard', stats: '', slot: 'ring', type: 'set' },
+            <IItem>{ name: 'Demonbane Necklace', stats: '', slot: 'neck', type: 'set' },
+            <IItem>{ name: 'Demonbane Katana', stats: '', slot: 'twohanded', type: 'set' },
+            <IItem>{ name: 'Demonbane Sabatons', stats: '', slot: 'boots', type: 'set' },
+            <IItem>{ name: 'Demonbane Charm', stats: '', slot: 'charm', type: 'set' },
+            <IItem>{ name: 'Demonbane Leggings', stats: '', slot: 'legs', type: 'set' },
+            <IItem>{ name: 'Ring Of Demonbane', stats: '', slot: 'ring', type: 'set' },
+            <IItem>{ name: 'King Solomons Crown', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'King Solomons Torc', stats: '', slot: 'neck', type: 'set' },
+            <IItem>{ name: 'King Solomons Upper Robe', stats: '', slot: 'chest', type: 'set' },
+            <IItem>{ name: 'King Solomons Bracelets', stats: '', slot: 'gloves', type: 'set' },
+            <IItem>{ name: 'King Solomons Belt', stats: '', slot: 'belt', type: 'set' },
+            <IItem>{ name: 'King Solomons Lower Robe', stats: '', slot: 'legs', type: 'set' },
+            <IItem>{ name: 'King Solomons Shoes', stats: '', slot: 'boots', type: 'set' },
+            <IItem>{ name: 'King Solomons 10 Rings', stats: '', slot: 'twohanded', type: 'set' },
+            <IItem>{ name: 'King Solomons Markings', stats: '', slot: 'charm', type: 'set' },
+        ];
+    }
+
+    newSetItems(): Array<IItem> {
+        return [
+            <IItem>{ name: 'Night Branches Bark Helm', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'Night Branches Bark Belt', stats: '', slot: 'belt', type: 'set' },
+            <IItem>{ name: 'Night Branches Bark Boots', stats: '', slot: 'boots', type: 'set' },
+            <IItem>{ name: 'The Demon Queens Signet', stats: '', slot: 'ring', type: 'set' },
+            <IItem>{ name: 'The Demon Queens Necklace', stats: '', slot: 'neck', type: 'set' },
+            <IItem>{ name: 'Nightshade Helm', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'Nightshade Armor', stats: '', slot: 'chest', type: 'set' },
+            <IItem>{ name: 'Nightshade Gloves', stats: '', slot: 'gloves', type: 'set' },
+            <IItem>{ name: 'Nightshade Boots', stats: '', slot: 'boots', type: 'set' },
+            <IItem>{ name: 'Nightshade Sword', stats: '', slot: 'left', type: 'set' },
+            <IItem>{ name: 'Nightshade Shield', stats: '', slot: 'right', type: 'set' },
+            <IItem>{ name: 'Luckstone Necklace', stats: '', slot: 'neck', type: 'set' },
+            <IItem>{ name: 'Luckstone Ring', stats: '', slot: 'ring', type: 'set' },
+            <IItem>{ name: 'Brotherhood Helm', stats: '', slot: 'head', type: 'set' },
+            <IItem>{ name: 'Brotherhood Belt', stats: '', slot: 'belt', type: 'set' },
+            <IItem>{ name: 'Brotherhood Armor', stats: '', slot: 'chest', type: 'set' },
+            <IItem>{ name: 'Brotherhood Gloves', stats: '', slot: 'gloves', type: 'set' },
+            <IItem>{ name: 'Brotherhood Boots', stats: '', slot: 'boots', type: 'set' },
+            <IItem>{ name: 'Brotherhood Shield', stats: '', slot: 'right', type: 'set' },
+        ];
+    }
+
     monsters(): Array<IMonster> {
         return [
             <IMonster>{
-                name: 'Ascended Minotaur',
-                dropRate: 60 / 100,
+                name: 'Divine Storm King',
+                dropRate: 20 / 100,
+                items: [
+                    <IItem>{ name: 'Divine Storm Spear', stats: '', type: 'set', slot: 'right' },
+                    <IItem>{ name: 'Divine Storm Ring', stats: '', type: 'set', slot: 'ring' },
+                ],
+            },
+            <IMonster>{
+                name: 'Legendary Fire Giant',
+                dropRate: 30 / 100,
                 items: [
                     <IItem>{ name: 'Infernal Warhammer', stats: '52 attack 20 charisma 22 int 24 dex 37 luck 2 degrade 50 level', type: 'event', slot: 'twohanded' },
                     <IItem>{ name: 'Sunheart Medallion', stats: '37 attack 20 charisma 25 int 24 dex 36 luck 2 degrade 50 level', type: 'event', slot: 'neck' },
                 ],
             },
             <IMonster>{
-                name: 'Forest Kirin',
-                dropRate: 50 / 100,
+                name: 'Legendary Frost Giant',
+                dropRate: 30 / 100,
                 items: [
-                    <IItem>{ name: 'Furs of the Frost', stats: '32 attack 32 charisma 32 int 32 dex 32 luck 2 degrade 50', type: 'event', slot: 'chest' },
+                    <IItem>{ name: 'Furs of the Frost', stats: '32 attack 32 charisma 32 int 32 dex 32 luck 2 degrade 50 level', type: 'event', slot: 'chest' },
                     <IItem>{ name: 'Crown of Deep Winter', stats: '35 attack 31 charisma 31 int 31 dex 35 luck 2 degrade 50 level', type: 'event', slot: 'head' },
                 ],
+            },
+            <IMonster>{
+                name: 'Legendary Stone Giant',
+                dropRate: 30 / 100,
+                items: [
+                    <IItem>{ name: 'Dragonstone Idol', stats: '26 attack 26 charisma 26 int 26 dex 106 luck 2 degrade 25 level', type: 'event', slot: 'charm' },
+                    <IItem>{ name: 'Dragonstone Idol', stats: '26 attack 26 charisma 26 int 26 dex 106 luck 2 degrade 25 level', type: 'event', slot: 'charm' },
+                ],
+            },
+            <IMonster>{
+                name: 'Legendary Hill Giant',
+                dropRate: 30 / 100,
+                items: [
+                    <IItem>{ name: 'Thornblight', stats: '10 attack 10 charisma 75 int 10 dex 40 luck 2 degrade 75 level', type: 'event', slot: 'left' },
+                    <IItem>{ name: 'Thane\'s Legendary Greatclub', stats: '75 attack 10 charisma 10 int 10 dex 40 luck 2 degrade 75 level', type: 'event', slot: 'left' },
+                ],
+            },
+            <IMonster>{
+                name: 'Legendary Cloud Giant',
+                dropRate: 30 / 100,
+                items: [
+                    <IItem>{ name: 'Healm of Whispers', stats: '24 attack 20 charisma 35 int 31 dex 35 luck 2 degrade 50 level', type: 'event', slot: 'head' },
+                    <IItem>{ name: 'Winged Boots', stats: '35 attack 31 charisma 35 int 26 dex 26 luck 2 degrade 50 level', type: 'event', slot: 'boots' },
+                ],
+            },
+            <IMonster>{
+                name: 'Ascended Fire Wyvern',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Golden Draconid',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Black Wyrm',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Ice Wyvern',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Bronze Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Ice Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Aether Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Emerald Wyrm',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Nether Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Obsidian Drake',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Golden Wyrm',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Ruby Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Red Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Emerald Drake',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Lightning Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Silver Wyrm',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Elder Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Blood Wyrm',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Sandskin Wyvern',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Sea Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Night Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Golden Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Reanimated Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Bronze Wyrm',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Fire Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Jade Drake',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Bloodrage Drake',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Enraged Drake',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Crystal Drake',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Abyssal Drake',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Forest Drake',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Earth Dragon',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Viridian Amphithere',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Golden Amphitere',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Celestial Wyrm',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Golden Guardian Wyrm',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Quintessence Dragon',
+                dropRate: 10 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
+            },
+            <IMonster>{
+                name: 'Ascended Basilisk',
+                dropRate: 5 / 100,
+                items: this.originalSetItems(),
+            },
+            <IMonster>{
+                name: 'Ascended Three-Headed Hydra',
+                dropRate: 5 / 100,
+                items: this.originalSetItems(),
+            },
+            <IMonster>{
+                name: 'Transcended',
+                dropRate: 5 / 100,
+                items: concat(this.originalSetItems(), this.newSetItems()),
             },
         ];
     }

@@ -1,7 +1,7 @@
 import { Schema, model, Document } from 'mongoose';
 
 interface IReward extends Document {
-    guildId: string,
+    guildId: string | null,
     userId: string,
     username: string,
     itemName: string,
@@ -14,6 +14,8 @@ interface IReward extends Document {
 const RewardSchema = new Schema({
     guildId: {
         type: String,
+        required: false,
+        default: null,
     },
     userId: {
         type: String,

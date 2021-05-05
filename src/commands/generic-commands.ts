@@ -4,7 +4,11 @@ import { makeOutstandingRewardsMessage } from "../messages/outstanding-rewards";
 
 class GenericCommands extends BaseCommands {
     async getOutstandingRewards(param: string) {
-        const query = <any>{ rewarded: false };
+        const query = <any>{
+            rewarded: false,
+            guildId: this.message.guildId(),
+        };
+
         let user = null;
 
         if (param === 'me') {
