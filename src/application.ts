@@ -76,7 +76,7 @@ class Application {
         }
 
         if (this.message.original().channel.id !== this.AdventureConfig.adventureChannelId) {
-            ray('Wrong channel');
+            console.log('Wrong channel');
 
             return;
         }
@@ -147,8 +147,6 @@ class Application {
         }
 
         const dropRoll = Math.random();
-
-        ray(`dropRoll: ${dropRoll} > ${monster.dropRate}`);
 
         if (dropRoll > monster.dropRate) {
             return;
@@ -551,7 +549,7 @@ class Application {
             },
             <IMonster>{
                 name: 'Ascended Golden Guardian Wyrm',
-                dropRate: 5 / 100,
+                dropRate: 100 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
@@ -568,11 +566,6 @@ class Application {
                 name: 'Ascended Three-Headed Hydra',
                 dropRate: 5 / 100,
                 items: this.originalSetItems(),
-            },
-            <IMonster>{
-                name: 'Transcended',
-                dropRate: 5 / 100,
-                items: concat(this.originalSetItems(), this.newSetItems()),
             },
         ];
     }
