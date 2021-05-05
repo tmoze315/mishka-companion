@@ -7,11 +7,10 @@ import { connect } from 'mongoose';
 import { AdventureConfig } from './config/adventure';
 import Application from './application';
 import { Discord } from './discord/discord';
-import { Message as DiscordMessage } from 'discord.js';
+import { Message as DiscordMessage, Client } from 'discord.js';
 import { Message } from './discord/message';
-import { makeErrorMessage } from './messages/error';
 import { registry } from '@alexlafroscia/service-locator';
-import AreaService from './services/AreaService';
+import { makeErrorMessage } from './messages/error';
 
 (async () => {
     await connect(AdventureConfig.mongodb.url, {
@@ -24,16 +23,15 @@ import AreaService from './services/AreaService';
 
     const discord = new Discord();
 
-    await discord.login(async (discordMessage: DiscordMessage) => {
+    await discord.login(async (discordMessage: DiscordMessage, client: Client) => {
         const application = new Application;
         const message = new Message(discordMessage);
 
         registry.register('message', message);
         registry.register('AdventureConfig', AdventureConfig);
-        registry.register('AreaService', new AreaService);
 
         try {
-            await application.handleMessage();
+            await application.handleMessage(client);
         } catch (error) {
             console.error(error);
 

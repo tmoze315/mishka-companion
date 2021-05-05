@@ -10,7 +10,7 @@ class Discord {
             this.client = new Client();
 
             this.client.on('message', (message: Message) => {
-                messageCallback(message);
+                messageCallback(message, this.client);
             });
 
             this.client.on('ready', () => {
