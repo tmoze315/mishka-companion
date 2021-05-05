@@ -1,8 +1,10 @@
-interface Config {
-    adventureCooldownInSeconds: number,
-    bossCooldownInSeconds: number,
+interface IAdventureConfig {
+    enabled: boolean,
     adminPassword: string,
     prefix: string,
+    guildId: string,
+    adventureBotId: string,
+    adventureChannelId: string,
     discord: {
         key: string,
     },
@@ -13,17 +15,21 @@ interface Config {
     },
 };
 
-export default <Config>{
-    adventureCooldownInSeconds: process.env.ADVENTURE_COOLDOWN_IN_SECONDS || 30,
-    bossCooldownInSeconds: process.env.BOSS_COOLDOWN_IN_SECONDS || 3600, // 1 hour
+const AdventureConfig = <IAdventureConfig>{
+    enabled: process.env.ENABLED === 'true' || false,
     adminPassword: process.env.ADMIN_PASSWORD,
+    guildId: process.env.GUILD_ID,
+    adventureBotId: process.env.ADVENTURE_BOT_ID,
+    adventureChannelId: process.env.ADVENTURE_CHANNEL_ID,
     prefix: process.env.PREFIX || '-',
     discord: {
         key: process.env.DISCORD_KEY,
     },
     mongodb: {
-        url: process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017/inventure',
+        url: process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017/adventuretimeevents',
         useCreateIndex: process.env.MONGODB_CREATE_INDEX || true,
         autoIndex: process.env.MONGODB_AUTO_INDEX || true,
     },
 };
+
+export { AdventureConfig, IAdventureConfig }

@@ -1,14 +1,14 @@
 import { Message as DiscordMessage } from 'discord.js';
 import { IGuild } from '../../models/Guild';
-import { IPlayer } from '../../models/Player';
 import { IMessage } from '../message';
 import { User } from '../user';
+import { MessageFactory } from '../__helpers__/jest.factories';
 
 class Message implements IMessage {
-    public _player: IPlayer | null = null;
     public _guild: IGuild | null = null;
     public _isFromBot: boolean = false;
     public _content: string = '';
+    private _nextSendMessage: Message;
 
     constructor(private discordMessage: DiscordMessage) { }
 
@@ -16,20 +16,12 @@ class Message implements IMessage {
         return this._content;
     }
 
-    author(): User {
-        if (this._player) {
-            return new User(this._player.id, this._player.username);
-        }
-
-        return new User(1, 'testing-user');
+    original(): DiscordMessage {
+        return this.discordMessage;
     }
 
-    async player(): Promise<IPlayer> {
-        if (!this._player) {
-            throw new Error('No player set.');
-        }
-
-        return this._player;
+    author(): User {
+        return new User(1, 'testing-user');
     }
 
     guildId(): string | null {
@@ -40,7 +32,17 @@ class Message implements IMessage {
         return this._isFromBot || false;
     }
 
-    async send(data: any): Promise<any> {
+    setNextSendMessage(message: Message) {
+        this._nextSendMessage = message;
+    }
+
+    send(data: any): Promise<any> {
+        return Promise.resolve().then(() => {
+            return this._nextSendMessage;
+        });
+    }
+
+    async edit(data: any): Promise<any> {
         return data;
     }
 }

@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
 import { Client } from 'discord.js';
-import AdventureConfig from '../config/adventure';
+import { AdventureConfig } from '../config/adventure';
 
 class Discord {
     private client: Client | null = null;
@@ -10,7 +10,7 @@ class Discord {
             this.client = new Client();
 
             this.client.on('message', (message: Message) => {
-                messageCallback(message);
+                messageCallback(message, this.client);
             });
 
             this.client.on('ready', () => {

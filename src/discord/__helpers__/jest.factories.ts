@@ -1,7 +1,6 @@
 import { MockMessage } from 'jest-discordjs-mocks';
 import { Model } from 'mongoose';
 import { IGuild } from '../../models/Guild';
-import { IPlayer } from '../../models/Player';
 
 const factory = (modelClass: any) => {
     const matches = modelClass.inspect().match(/\{(.*?)\}/);
@@ -18,17 +17,10 @@ const factory = (modelClass: any) => {
 }
 
 class MessageFactory {
-    private player: IPlayer | null = null;
     private guild: IGuild | null = null;
     private isBot: boolean = false;
 
     constructor(private content: string = '') { }
-
-    fromPlayer(player: IPlayer) {
-        this.player = player;
-
-        return this;
-    }
 
     fromGuild(guild: IGuild) {
         this.guild = guild;
@@ -49,13 +41,10 @@ class MessageFactory {
         const message = new Message(new MockMessage);
 
         jest.spyOn(message, 'send');
+        jest.spyOn(message, 'edit');
 
         if (this.content !== '') {
             message._content = this.content;
-        }
-
-        if (this.player !== null) {
-            message._player = this.player;
         }
 
         if (this.guild !== null) {
