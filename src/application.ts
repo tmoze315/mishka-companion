@@ -131,7 +131,9 @@ class Application {
             return;
         }
 
-        return this.message.send(makeItemRewardedMessage());
+        const rewards = await Reward.find({ rewarded: false });
+
+        return this.message.send(makeItemRewardedMessage(rewards));
     }
 
     async handleFight(message: string, monster: IMonster) {
@@ -173,6 +175,7 @@ class Application {
             }
 
             const newReward = new Reward({
+                guildId: this.message.guildId(),
                 userId: user.id,
                 username: user.displayName,
                 itemName: droppedItem.name,
@@ -202,7 +205,7 @@ class Application {
             },
             <IMonster>{
                 name: 'Forest Kirin',
-                dropRate: 95 / 100,
+                dropRate: 50 / 100,
                 items: [
                     <IItem>{ name: 'Furs of the Frost', stats: '32 attack 32 charisma 32 int 32 dex 32 luck 2 degrade 50', type: 'event', slot: 'chest' },
                     <IItem>{ name: 'Crown of Deep Winter', stats: '35 attack 31 charisma 31 int 31 dex 35 luck 2 degrade 50 level', type: 'event', slot: 'head' },
