@@ -1,7 +1,6 @@
 import { IMessage } from './discord/message';
 import { inject } from '@alexlafroscia/service-locator';
 import { IAdventureConfig } from './config/adventure';
-import { ray } from 'node-ray';
 import { Client, Collection, GuildMember } from 'discord.js';
 import { Reward } from './models/Reward';
 import isEmpty from 'lodash/isEmpty';
@@ -10,6 +9,7 @@ import concat from 'lodash/concat';
 import { makeLootDroppedMessage } from './messages/loot-dropped';
 import availableCommands from './config/available-commands';
 import { makeItemRewardedMessage } from './messages/item-rewarded';
+import { registry } from '@alexlafroscia/service-locator';
 
 interface IItem {
     name: string,
@@ -38,6 +38,9 @@ class Application {
 
         this.client = client;
         this.guildMembers = this.client?.guilds.cache.get(this.AdventureConfig.guildId)?.members?.cache;
+
+        registry.register('client', client);
+        registry.register('guildMembers', this.guildMembers);
 
         await this.handleAdventureWinMessage();
         await this.handleGiveItemMessage();
@@ -149,18 +152,21 @@ class Application {
         const dropRoll = Math.random();
 
         if (dropRoll > monster.dropRate) {
+            console.log('No drops');
+
             return;
         }
 
         const droppedItem = sample(monster.items);
 
         if (!droppedItem) {
+            console.log('No item found');
             return;
         }
 
-        const usersString = matches[1];
+        const usersString = matches[1].replace('** and **', '**, **');
 
-        const users = usersString.split(',').map((displayName) => {
+        const users = usersString.split(', ').map((displayName) => {
             displayName = displayName.trim().replace(/\*\*/g, '');
 
             return this.findUser(displayName);
@@ -373,197 +379,197 @@ class Application {
                 ],
             },
             <IMonster>{
-                name: 'Ascended Fire Wyvern',
+                name: 'Fire Wyvern',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Golden Draconid',
+                name: 'Golden Draconid',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Black Wyrm',
+                name: 'Black Wyrm',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Ice Wyvern',
+                name: 'Ice Wyvern',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Bronze Dragon',
+                name: 'Bronze Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Ice Dragon',
+                name: 'Ice Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Aether Dragon',
+                name: 'Aether Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Emerald Wyrm',
+                name: 'Emerald Wyrm',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Nether Dragon',
+                name: 'Nether Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Obsidian Drake',
+                name: 'Obsidian Drake',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Golden Wyrm',
+                name: 'Golden Wyrm',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Ruby Dragon',
+                name: 'Ruby Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Red Dragon',
+                name: 'Red Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Emerald Drake',
+                name: 'Emerald Drake',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Lightning Dragon',
+                name: 'Lightning Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Silver Wyrm',
+                name: 'Silver Wyrm',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Elder Dragon',
+                name: 'Elder Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Blood Wyrm',
+                name: 'Blood Wyrm',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Sandskin Wyvern',
+                name: 'Sandskin Wyvern',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Sea Dragon',
+                name: 'Sea Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Night Dragon',
+                name: 'Night Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Golden Dragon',
+                name: 'Golden Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Reanimated Dragon',
+                name: 'Reanimated Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Bronze Wyrm',
+                name: 'Bronze Wyrm',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Fire Dragon',
+                name: 'Fire Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Jade Drake',
+                name: 'Jade Drake',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Bloodrage Drake',
+                name: 'Bloodrage Drake',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Enraged Drake',
+                name: 'Enraged Drake',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Crystal Drake',
+                name: 'Crystal Drake',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Abyssal Drake',
+                name: 'Abyssal Drake',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Forest Drake',
+                name: 'Forest Drake',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Earth Dragon',
+                name: 'Earth Dragon',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Viridian Amphithere',
+                name: 'Viridian Amphithere',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Golden Amphitere',
+                name: 'Golden Amphitere',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Celestial Wyrm',
+                name: 'Celestial Wyrm',
                 dropRate: 5 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Golden Guardian Wyrm',
+                name: 'Golden Guardian Wyrm',
                 dropRate: 100 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Quintessence Dragon',
+                name: 'Quintessence Dragon',
                 dropRate: 10 / 100,
                 items: concat(this.originalSetItems(), this.newSetItems()),
             },
             <IMonster>{
-                name: 'Ascended Basilisk',
+                name: 'Basilisk',
                 dropRate: 5 / 100,
                 items: this.originalSetItems(),
             },
             <IMonster>{
-                name: 'Ascended Three-Headed Hydra',
+                name: 'Three-Headed Hydra',
                 dropRate: 5 / 100,
                 items: this.originalSetItems(),
             },

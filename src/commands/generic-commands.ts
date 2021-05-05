@@ -1,8 +1,13 @@
 import { Reward } from "../models/Reward";
 import BaseCommands from "./base-commands";
 import { makeOutstandingRewardsMessage } from "../messages/outstanding-rewards";
+import { ray } from "node-ray";
+import { inject } from '@alexlafroscia/service-locator';
+import { GuildMember } from "discord.js";
 
 class GenericCommands extends BaseCommands {
+    @inject guildMembers: any;
+
     async getOutstandingRewards(param: string) {
         const query = <any>{
             rewarded: false,
@@ -16,31 +21,22 @@ class GenericCommands extends BaseCommands {
             user = this.message.author();
         }
 
+        if (param?.includes('<@!')) {
+            query.userId = param.replace('<@!', '').replace('>', '');
+            user = this.getUser(query.userId);
+            user.username = user.displayName;
+        }
+
         const rewards = await Reward.find(query);
 
         return this.message.send(makeOutstandingRewardsMessage(rewards, user));
     }
-    // async start() {
-    //     const player: IPlayer | null = await Player.findOne({ id: this.message.author().id }).exec();
 
-    //     if (player) {
-    //         this.message.send('Looks like you have already started your adventure!');
-
-    //         return;
-    //     }
-
-    //     const author = this.message.author();
-
-    //     const newPlayer = new Player({
-    //         id: author.id,
-    //         guildId: this.guild.get('id'),
-    //         username: author.username,
-    //     });
-
-    //     await newPlayer.save();
-
-    //     this.message.send(`Hello`);
-    // }
+    getUser(userId: string) {
+        return this.guildMembers?.find((member: GuildMember) => {
+            return member.id === userId;
+        });
+    }
 }
 
 export { GenericCommands };
