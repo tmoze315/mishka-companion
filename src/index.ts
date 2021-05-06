@@ -11,6 +11,7 @@ import { Message as DiscordMessage, Client } from 'discord.js';
 import { Message } from './discord/message';
 import { registry } from '@alexlafroscia/service-locator';
 import { makeErrorMessage } from './messages/error';
+import { Guild } from './models/Guild';
 
 (async () => {
     await connect(AdventureConfig.mongodb.url, {
@@ -27,11 +28,31 @@ import { makeErrorMessage } from './messages/error';
         const application = new Application;
         const message = new Message(discordMessage);
 
+        const guildId = message.guildId();
+        const guildMembers = guildId ? client?.guilds.cache.get(guildId)?.members?.cache : null;
+
+        let guild = null;
+
+        if (guildId) {
+            guild = await Guild.findOne({ id: guildId }).exec();
+        }
+
+        if (!guild) {
+            const newGuild = new Guild({
+                id: guildId,
+            });
+
+            guild = await newGuild.save();
+        }
+
+        registry.register('client', client);
         registry.register('message', message);
+        registry.register('guild', guild);
+        registry.register('guildMembers', guildMembers);
         registry.register('AdventureConfig', AdventureConfig);
 
         try {
-            await application.handleMessage(client);
+            await application.handleMessage();
         } catch (error) {
             console.error(error);
 

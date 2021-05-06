@@ -2,9 +2,6 @@ interface IAdventureConfig {
     enabled: boolean,
     adminPassword: string,
     prefix: string,
-    guildId: string,
-    adventureBotId: string,
-    adventureChannelId: string,
     discord: {
         key: string,
     },
@@ -16,11 +13,7 @@ interface IAdventureConfig {
 };
 
 const AdventureConfig = <IAdventureConfig>{
-    enabled: process.env.ENABLED === 'true' || false,
     adminPassword: process.env.ADMIN_PASSWORD,
-    guildId: process.env.GUILD_ID,
-    adventureBotId: process.env.ADVENTURE_BOT_ID,
-    adventureChannelId: process.env.ADVENTURE_CHANNEL_ID,
     prefix: process.env.PREFIX || '-',
     discord: {
         key: process.env.DISCORD_KEY,
