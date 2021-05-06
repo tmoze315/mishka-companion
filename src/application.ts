@@ -14,16 +14,14 @@ class Application {
     @inject guild: IGuild;
 
     async handleMessage() {
-        if (this.guild.enabled !== true) {
-            return;
-        }
-
         // Run all message listeners
-        for (const listenerConfig of availableListeners) {
-            const commandInstance = new listenerConfig.class();
+        if (this.guild.enabled === true) {
+            for (const listenerConfig of availableListeners) {
+                const commandInstance = new listenerConfig.class();
 
-            await commandInstance.handle();
-        };
+                await commandInstance.handle();
+            };
+        }
 
         const prefix = '-';
 

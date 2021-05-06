@@ -168,7 +168,7 @@ export default class AdventureWinListener {
             },
             <IMonster>{
                 name: 'Fire Wyvern',
-                dropRate: 100 / 100,
+                dropRate: 5 / 100,
                 items: concat(ItemService.tierTwoSetItems(), ItemService.tierThreeSetItems(), ItemService.tierFourSetItems()),
             },
             <IMonster>{

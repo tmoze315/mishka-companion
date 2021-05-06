@@ -1,6 +1,7 @@
 interface IAdventureConfig {
     enabled: boolean,
     adminPassword: string,
+    ownerId: string,
     prefix: string,
     discord: {
         key: string,
@@ -13,6 +14,7 @@ interface IAdventureConfig {
 };
 
 const AdventureConfig = <IAdventureConfig>{
+    ownerId: process.env.OWNER_ID,
     adminPassword: process.env.ADMIN_PASSWORD,
     prefix: process.env.PREFIX || '-',
     discord: {

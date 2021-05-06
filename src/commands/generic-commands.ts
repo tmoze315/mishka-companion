@@ -1,13 +1,16 @@
 import { Reward } from "../models/Reward";
 import BaseCommands from "./base-commands";
 import { makeOutstandingRewardsMessage } from "../messages/outstanding-rewards";
-import { ray } from "node-ray";
 import { GuildMember } from "discord.js";
 import { makeSuccessMessage } from "../messages/success";
 import { makeErrorMessage } from "../messages/error";
 
 class GenericCommands extends BaseCommands {
     async getOutstandingRewards(param: string) {
+        if (this.guild.enabled !== true) {
+            return;
+        }
+
         const query = <any>{
             rewarded: false,
             guildId: this.guild.id,
@@ -31,13 +34,17 @@ class GenericCommands extends BaseCommands {
         return this.message.send(makeOutstandingRewardsMessage(rewards, user));
     }
 
-    getUser(userId: string) {
+    private getUser(userId: string) {
         return this.guildMembers?.find((member: GuildMember) => {
             return member.id === userId;
         });
     }
 
     async setAdventureChannel(channelId: string | null) {
+        if (this.message.author().id != this.AdventureConfig.ownerId) {
+            return;
+        }
+
         if (!channelId) {
             channelId = this.message.original().channel.id;
         } else {
@@ -50,6 +57,10 @@ class GenericCommands extends BaseCommands {
     }
 
     async setAdventureBot(botId: string | null) {
+        if (this.message.author().id != this.AdventureConfig.ownerId) {
+            return;
+        }
+
         if (!botId) {
             return this.message.send(makeErrorMessage(`Please mention the bot.`));
         }
@@ -62,6 +73,10 @@ class GenericCommands extends BaseCommands {
     }
 
     async enable() {
+        if (this.message.author().id != this.AdventureConfig.ownerId) {
+            return;
+        }
+
         if (!this.guild.adventureChannelId || !this.guild.adventureBotId) {
             return this.message.send(makeErrorMessage(`Please select an adventure channel and bot first.`));
         }
@@ -72,6 +87,10 @@ class GenericCommands extends BaseCommands {
     }
 
     async disable() {
+        if (this.message.author().id != this.AdventureConfig.ownerId) {
+            return;
+        }
+
         await this.guild.disable();
 
         return this.message.send(makeSuccessMessage(`Bot disabled.`));
