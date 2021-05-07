@@ -1,7 +1,7 @@
 const { connect, connection } = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 import { registry } from '@alexlafroscia/service-locator';
-import { AdventureConfig } from './src/config/adventure';
+import { Config } from './src/config/adventure';
 
 const mongodb = new MongoMemoryServer();
 
@@ -23,7 +23,7 @@ afterAll(async () => {
 });
 
 beforeEach(() => {
-    registry.register('AdventureConfig', AdventureConfig);
+    registry.register('Config', Config);
 })
 
 afterEach(async () => {

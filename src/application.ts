@@ -1,36 +1,37 @@
 import { IMessage } from './discord/message';
 import { inject } from '@alexlafroscia/service-locator';
-import { IAdventureConfig } from './config/adventure';
+import { IConfig } from './config/adventure';
 import { Client, Collection, GuildMember } from 'discord.js';
 import availableCommands from './config/available-commands';
-import availableListeners from './config/available-listeners';
+// import availableListeners from './config/available-listeners';
 import { IGuild } from './models/Guild';
+import { ray } from 'node-ray';
 
 class Application {
     @inject message: IMessage;
-    @inject AdventureConfig: IAdventureConfig;
+    @inject Config: IConfig;
     @inject client: Client | null;
     @inject guildMembers: Collection<string, GuildMember> | undefined;
     @inject guild: IGuild;
 
     async handleMessage() {
         // Run all message listeners
-        if (this.guild.enabled === true) {
-            for (const listenerConfig of availableListeners) {
-                const commandInstance = new listenerConfig.class();
+        // if (this.guild.enabled === true) {
+        //     for (const listenerConfig of availableListeners) {
+        //         const commandInstance = new listenerConfig.class();
 
-                await commandInstance.handle();
-            };
-        }
+        //         await commandInstance.handle();
+        //     };
+        // }
 
-        const prefix = '-';
+        const prefix = this.Config.prefix || 'm/';
 
         if (!this.message.content().startsWith(prefix) || this.message.isFromBot()) {
             return;
         }
 
-        const args = this.message.content().slice(prefix.length).trim().split(/ +/g);
-        const command = args?.shift()?.toLowerCase()?.trim();
+        const messageContent = this.message.content().slice(prefix.length).trim();
+        const command = messageContent?.split(/ +/g)?.shift()?.toLowerCase()?.trim();
 
         if (!command) {
             return;
@@ -47,7 +48,7 @@ class Application {
         // Create the controller, so we have a reference to the message available at all times
         const commandInstance = new route.class();
 
-        return commandInstance[route.method](...args);
+        return commandInstance[route.method](messageContent.replace(command, ''));
     }
 }
 

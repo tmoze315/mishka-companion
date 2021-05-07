@@ -4,13 +4,13 @@ interface IGuild extends Document {
     id: String;
     name: String;
     enabled: boolean,
-    adventureChannelId: string,
-    adventureBotId: string,
+    mishkaChannelId: string,
+    mishkaBotId: string,
 
     enable: Function,
     disable: Function,
-    setAdventureChannelId: Function,
-    setAdventureBotId: Function,
+    setMishkaChannelId: Function,
+    setMishkaBotId: Function,
 }
 
 const GuildSchema = new Schema({
@@ -20,8 +20,8 @@ const GuildSchema = new Schema({
         type: Boolean,
         default: false,
     },
-    adventureChannelId: String,
-    adventureBotId: String,
+    mishkaChannelId: String,
+    mishkaBotId: String,
 });
 
 GuildSchema.methods.enable = function () {
@@ -36,14 +36,14 @@ GuildSchema.methods.disable = function () {
     return this.save();
 };
 
-GuildSchema.methods.setAdventureChannelId = function (channelId: string) {
-    this.adventureChannelId = channelId;
+GuildSchema.methods.setMishkaChannelId = function (channelId: string) {
+    this.mishkaChannelId = channelId;
 
     return this.save();
 };
 
-GuildSchema.methods.setAdventureBotId = function (botId: string) {
-    this.adventureBotId = botId;
+GuildSchema.methods.setMishkaBotId = function (botId: string) {
+    this.mishkaBotId = botId;
 
     return this.save();
 };

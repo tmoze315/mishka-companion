@@ -1,7 +1,5 @@
-import AdventureWinListener from '../listeners/adventure-win-listener';
-import GiveItemListener from '../listeners/give-item-listener';
+// import AdventureWinListener from '../listeners/adventure-win-listener';
 
 export default [
-    { class: AdventureWinListener },
-    { class: GiveItemListener },
+    // { class: AdventureWinListener },
 ];

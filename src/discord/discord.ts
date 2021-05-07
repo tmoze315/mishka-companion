@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
 import { Client } from 'discord.js';
-import { AdventureConfig } from '../config/adventure';
+import { Config } from '../config/adventure';
 
 class Discord {
     private client: Client | null = null;
@@ -19,7 +19,7 @@ class Discord {
                 resolve();
             });
 
-            this.client.login(AdventureConfig.discord.key);
+            this.client.login(Config.discord.key);
         });
     }
 }

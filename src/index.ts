@@ -4,7 +4,7 @@ import _ from 'lodash';
 dotenv.config();
 
 import { connect } from 'mongoose';
-import { AdventureConfig } from './config/adventure';
+import { Config } from './config/adventure';
 import Application from './application';
 import { Discord } from './discord/discord';
 import { Message as DiscordMessage, Client } from 'discord.js';
@@ -14,12 +14,12 @@ import { makeErrorMessage } from './messages/error';
 import { Guild } from './models/Guild';
 
 (async () => {
-    await connect(AdventureConfig.mongodb.url, {
+    await connect(Config.mongodb.url, {
         useNewUrlParser: true,
         useFindAndModify: false,
         useUnifiedTopology: true,
-        useCreateIndex: AdventureConfig.mongodb.useCreateIndex,
-        autoIndex: AdventureConfig.mongodb.autoIndex,
+        useCreateIndex: Config.mongodb.useCreateIndex,
+        autoIndex: Config.mongodb.autoIndex,
     });
 
     const discord = new Discord();
@@ -49,7 +49,7 @@ import { Guild } from './models/Guild';
         registry.register('message', message);
         registry.register('guild', guild);
         registry.register('guildMembers', guildMembers);
-        registry.register('AdventureConfig', AdventureConfig);
+        registry.register('Config', Config);
 
         try {
             await application.handleMessage();

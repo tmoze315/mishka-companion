@@ -1,9 +1,12 @@
 import { GenericCommands } from '../commands/generic-commands';
 
 export default {
-    rewards: { class: GenericCommands, method: 'getOutstandingRewards' },
-    atcadventurechannel: { class: GenericCommands, method: 'setAdventureChannel' },
-    atcadventurebot: { class: GenericCommands, method: 'setAdventureBot' },
-    atcenable: { class: GenericCommands, method: 'enable' },
-    atcdisable: { class: GenericCommands, method: 'disable' },
+    joke: { class: GenericCommands, method: 'playJoke' },
+    jokes: { class: GenericCommands, method: 'playJoke' },
+    addjoke: { class: GenericCommands, method: 'addJoke' },
+    clear: { class: GenericCommands, method: 'clear' },
+    jchannel: { class: GenericCommands, method: 'setMishkaChannel' },
+    jbot: { class: GenericCommands, method: 'setMishkaBot' },
+    jenable: { class: GenericCommands, method: 'enable' },
+    jdisable: { class: GenericCommands, method: 'disable' },
 }
