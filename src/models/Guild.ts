@@ -6,11 +6,15 @@ interface IGuild extends Document {
     enabled: boolean,
     mishkaChannelId: string,
     mishkaBotId: string,
+    admins: [string],
 
     enable: Function,
     disable: Function,
     setMishkaChannelId: Function,
     setMishkaBotId: Function,
+    addAdmin: Function,
+    removeAdmin: Function,
+    isAdmin: Function,
 }
 
 const GuildSchema = new Schema({
@@ -22,6 +26,7 @@ const GuildSchema = new Schema({
     },
     mishkaChannelId: String,
     mishkaBotId: String,
+    admins: [String],
 });
 
 GuildSchema.methods.enable = function () {
@@ -46,6 +51,32 @@ GuildSchema.methods.setMishkaBotId = function (botId: string) {
     this.mishkaBotId = botId;
 
     return this.save();
+};
+
+GuildSchema.methods.addAdmin = function (adminId: string) {
+    adminId = adminId.replace('<@!', '').replace('>', '').replace('<@&', '').trim();
+
+    this.admins.push(adminId);
+
+    this.admins = [...new Set(this.admins)];
+
+    return this.save();
+};
+
+GuildSchema.methods.removeAdmin = function (adminId: string) {
+    adminId = adminId.replace('<@!', '').replace('>', '').replace('<@&', '').trim();
+
+    this.admins = this.admins.filter((id: string) => {
+        return id != adminId;
+    });
+
+    return this.save();
+};
+
+GuildSchema.methods.isAdmin = function (adminId: string) {
+    adminId = adminId.replace('<@!', '').replace('>', '').replace('<@&', '').trim();
+
+    return this.admins.includes(adminId);
 };
 
 const Guild = model<IGuild>('Guild', GuildSchema);

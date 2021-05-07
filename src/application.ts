@@ -48,7 +48,7 @@ class Application {
         // Create the controller, so we have a reference to the message available at all times
         const commandInstance = new route.class();
 
-        return commandInstance[route.method](messageContent.replace(command, ''));
+        return commandInstance[route.method](messageContent.replace(command, '').trim());
     }
 }
 
